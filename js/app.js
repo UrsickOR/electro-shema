@@ -12,6 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const safetyBannerIcon = document.getElementById('safety-banner-icon');
   const safetyBannerText = document.getElementById('safety-banner-text');
 
+  const leftSidebar = document.getElementById('left-sidebar');
+  const rightSidebar = document.getElementById('right-sidebar');
+  const drawerBackdrop = document.getElementById('drawer-backdrop');
+  const btnMobDelete = document.getElementById('btn-mob-delete');
+
   // Инициализация движка холста
   const canvas = new SchematicCanvas(
     svgEl,
@@ -101,11 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==================== МОБИЛЬНЫЕ ПАНЕЛИ (DRAWERS) ====================
-  const leftSidebar = document.getElementById('left-sidebar');
-  const rightSidebar = document.getElementById('right-sidebar');
-  const drawerBackdrop = document.getElementById('drawer-backdrop');
-  const btnMobDelete = document.getElementById('btn-mob-delete');
-
   function closeDrawers() {
     leftSidebar.classList.remove('open');
     rightSidebar.classList.remove('open');
