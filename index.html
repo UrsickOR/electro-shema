@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ЭлектроСхема — Конструктор схем электростанций и электроники</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Top Toolbar -->
+    <header class="toolbar">
+      <div class="toolbar-group brand">
+        <span class="brand-icon">⚡</span>
+        <div class="brand-text">
+          <h1>ЭлектроСхема</h1>
+          <span class="brand-sub">Конструктор сборки 12В / 24В / 220В</span>
+        </div>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <div class="toolbar-group">
+        <label class="toolbar-label" for="preset-select">Шаблон:</label>
+        <select id="preset-select" class="select-input" title="Загрузить готовый шаблон">
+          <option value="power-station-24v">🔋 Электростанция 24В → 220В + USB</option>
+          <option value="relay-2pin-inv-fans">🧲 2-pin кнопка + Реле 24V → Инвертор + Венты</option>
+          <option value="one-button-inv-fans">🔘 1 кнопка → Инвертор + Вентиляторы</option>
+          <option value="precharge-softstart">⚡ Плавный пуск (Кнопка + Резистор)</option>
+          <option value="basic-12v">🚗 Базовая сборка 12В (АКБ + USB)</option>
+          <option value="empty">📄 Чистый лист</option>
+        </select>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <div class="toolbar-group">
+        <button id="btn-undo" class="icon-btn" title="Отменить (Ctrl+Z)" disabled>↩️</button>
+        <button id="btn-redo" class="icon-btn" title="Повторить (Ctrl+Y)" disabled>↪️</button>
+        <button id="btn-add-note" class="tool-btn" title="Добавить текстовую заметку на схему">📝 Заметка</button>
+        <button id="btn-custom-comp" class="tool-btn" title="Создать свой компонент">➕ Свой блок</button>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <div class="toolbar-group wire-controls">
+        <span class="toolbar-label">Провод:</span>
+        <select id="wire-color-select" class="select-input compact" title="Цвет нового провода">
+          <option value="auto">🎨 Авто (по контакту)</option>
+          <option value="#ef4444">🔴 Красный (+ DC)</option>
+          <option value="#1e293b">⚫ Черный (- DC)</option>
+          <option value="#b45309">🟤 Коричневый (Фаза L)</option>
+          <option value="#3b82f6">🔵 Синий (Ноль N)</option>
+          <option value="#22c55e">🟢 Желто-зеленый (PE)</option>
+          <option value="#f59e0b">🟡 Желтый (Сигнал / 12В)</option>
+          <option value="#a855f7">🟣 Фиолетовый (Управление)</option>
+        </select>
+        <select id="wire-gauge-select" class="select-input compact" title="Сечение провода">
+          <option value="auto">📏 Сечение: Авто</option>
+          <option value="25 мм² (4 AWG)">25 мм² (до 120A)</option>
+          <option value="16 мм² (6 AWG)">16 мм² (до 85A)</option>
+          <option value="10 мм² (8 AWG)">10 мм² (до 60A)</option>
+          <option value="6 мм² (10 AWG)">6 мм² (до 40A)</option>
+          <option value="4 мм² (12 AWG)">4 мм² (до 30A)</option>
+          <option value="2.5 мм² (14 AWG)">2.5 мм² (до 20A)</option>
+          <option value="1.5 мм² (16 AWG)">1.5 мм² (до 15A)</option>
+          <option value="0.75 мм² (18 AWG)">0.75 мм² (до 6A)</option>
+          <option value="0.5 мм² (сигнал)">0.5 мм² (сигнальный)</option>
+        </select>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <div class="toolbar-group">
+        <button id="btn-check-safety" class="tool-btn accent-warn" title="Проверить схему на ошибки и КЗ">🛡️ Проверка</button>
+        <button id="btn-bom" class="tool-btn" title="Список всех деталей (Спецификация)">📋 Детали</button>
+        <button id="btn-calc" class="tool-btn" title="Калькулятор сечения проводов и предохранителей">🧮 Калькулятор</button>
+      </div>
+
+      <div class="toolbar-spacer"></div>
+
+      <div class="toolbar-group">
+        <button id="btn-save-json" class="icon-btn" title="Сохранить проект (.json)">💾</button>
+        <button id="btn-load-json" class="icon-btn" title="Открыть проект (.json)">📂</button>
+        <input type="file" id="file-load-input" accept=".json" hidden />
+        <button id="btn-export-png" class="tool-btn accent-primary" title="Скачать схему как картинку PNG">🖼️ PNG</button>
+        <button id="btn-export-svg" class="icon-btn" title="Скачать векторный SVG">📐</button>
+        <button id="btn-theme" class="icon-btn" title="Переключить тему (Темная / Светлая)">🌓</button>
+        <button id="btn-help" class="icon-btn" title="Справка и горячие клавиши">❓</button>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="workspace">
+      <div id="drawer-backdrop" class="drawer-backdrop hidden"></div>
+
+      <!-- Left Sidebar: Components Palette -->
+      <aside class="sidebar left-sidebar" id="left-sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-title-row">
+            <h2>Компоненты</h2>
+            <button class="mobile-drawer-close" data-close-drawer="left-sidebar">✕</button>
+          </div>
+          <input type="search" id="comp-search" class="search-input" placeholder="Поиск (инвертор, usb, bms...)" />
+        </div>
+        <div id="palette-list" class="palette-list">
+          <!-- Populated dynamically by JS -->
+        </div>
+      </aside>
+
+      <!-- Center: Interactive Canvas -->
+      <main class="canvas-container" id="canvas-container">
+        <div id="safety-banner" class="safety-banner hidden">
+          <div class="safety-banner-content">
+            <span id="safety-banner-icon">⚠️</span>
+            <span id="safety-banner-text"></span>
+          </div>
+          <button id="safety-banner-close" class="close-small">✕</button>
+        </div>
+
+        <svg id="schematic-svg" class="schematic-svg" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="grid-small" width="20" height="20" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="1" class="grid-dot" />
+            </pattern>
+            <pattern id="grid-large" width="100" height="100" patternUnits="userSpaceOnUse">
+              <rect width="100" height="100" fill="url(#grid-small)" />
+              <path d="M 100 0 L 0 0 0 100" fill="none" class="grid-line" stroke-width="0.6" />
+            </pattern>
+            <filter id="wire-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-opacity="0.35" />
+            </filter>
+          </defs>
+
+          <!-- Background Grid -->
+          <rect id="canvas-bg" width="100%" height="100%" fill="url(#grid-large)" />
+
+          <!-- Viewport transform group -->
+          <g id="viewport">
+            <g id="notes-layer"></g>
+            <g id="wires-layer"></g>
+            <g id="components-layer"></g>
+            <g id="temp-wire-layer"></g>
+          </g>
+        </svg>
+
+        <!-- Canvas Floating Controls -->
+        <div class="canvas-controls">
+          <button id="btn-zoom-out" class="ctrl-btn" title="Уменьшить">−</button>
+          <span id="zoom-level" class="zoom-label">100%</span>
+          <button id="btn-zoom-in" class="ctrl-btn" title="Увеличить">+</button>
+          <button id="btn-zoom-fit" class="ctrl-btn" title="Вписать схему в экран">⛶</button>
+          <button id="btn-snap-grid" class="ctrl-btn active" title="Привязка к сетке (20px)">🧲</button>
+        </div>
+
+        <div class="canvas-hint">
+          💡 Перетащите компонент из меню слева • Кликните по контакту и тяните к другому для провода • Колесико: масштаб • Пробел + мышь или ПКМ: двигать холст
+        </div>
+
+        <!-- Mobile Bottom Bar -->
+        <div class="mobile-bar">
+          <button id="btn-mob-palette" class="mob-btn">🧩 Блоки</button>
+          <button id="btn-mob-inspector" class="mob-btn">⚙️ Свойства</button>
+          <button id="btn-mob-delete" class="mob-btn danger" disabled>🗑️ Удалить</button>
+        </div>
+      </main>
+
+      <!-- Right Sidebar: Properties Inspector -->
+      <aside class="sidebar right-sidebar" id="right-sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-title-row">
+            <h2>Свойства</h2>
+            <button class="mobile-drawer-close" data-close-drawer="right-sidebar">✕</button>
+          </div>
+        </div>
+        <div id="inspector-content" class="inspector-content">
+          <div class="inspector-empty">
+            <div class="empty-icon">🔌</div>
+            <p>Выберите компонент или провод на схеме, чтобы изменить параметры, цвет, сечение или удалить элемент.</p>
+            <div class="quick-tips">
+              <h4>Подсказка по сборке 24В→220В:</h4>
+              <ul>
+                <li><strong>BMS</strong> ставится в разрыв минуса (B- к АКБ, P- на шунт/шину).</li>
+                <li><strong>Предохранитель</strong> и <strong>рубильник</strong> ставятся на плюс (+) как можно ближе к АКБ.</li>
+                <li><strong>USB и 12В</strong> подключайте через DC-DC понижайку 24→12В, если модуль не поддерживает 24В!</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Modal: Bill of Materials (BOM) -->
+  <div id="modal-bom" class="modal hidden">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <h3>📋 Спецификация деталей (BOM)</h3>
+        <button class="modal-close" data-close="modal-bom">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">Автоматический список всех компонентов и проводов вашей схемы для закупки и сборки.</p>
+        <div class="table-wrap">
+          <table class="data-table" id="bom-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Компонент</th>
+                <th>Категория</th>
+                <th>Параметры / Номинал</th>
+                <th>Кол-во</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <h4 class="section-title">Сводка по проводам:</h4>
+        <div id="bom-wires-summary" class="wires-summary"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-copy-bom" class="tool-btn">📄 Копировать текст</button>
+        <button id="btn-export-csv" class="tool-btn accent-primary">📥 Скачать CSV (Excel)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Wire & Fuse Calculator -->
+  <div id="modal-calc" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🧮 Калькулятор провода и предохранителя</h3>
+        <button class="modal-close" data-close="modal-calc">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="calc-voltage">Напряжение системы (В)</label>
+            <select id="calc-voltage" class="form-input">
+              <option value="24" selected>24 В (Сборка 7S/8S)</option>
+              <option value="12">12 В (Авто / 3S/4S)</option>
+              <option value="48">48 В (Мощная станция)</option>
+              <option value="220">220 В (Выход инвертора AC)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="calc-power">Мощность нагрузки (Вт)</label>
+            <input type="number" id="calc-power" class="form-input" value="1000" min="1" max="20000" />
+          </div>
+          <div class="form-group">
+            <label for="calc-length">Длина кабеля (в одну сторону, м)</label>
+            <input type="number" id="calc-length" class="form-input" value="0.5" min="0.1" max="50" step="0.1" />
+          </div>
+        </div>
+        <div id="calc-result" class="calc-result-box"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Custom Component -->
+  <div id="modal-custom" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>➕ Создать свой компонент</h3>
+        <button class="modal-close" data-close="modal-custom">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="custom-name">Название компонента</label>
+          <input type="text" id="custom-name" class="form-input" placeholder="Например: Реле времени 24В" />
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="custom-voltage">Напряжение</label>
+            <input type="text" id="custom-voltage" class="form-input" value="24V DC" />
+          </div>
+          <div class="form-group">
+            <label for="custom-spec">Номинал / Примечание</label>
+            <input type="text" id="custom-spec" class="form-input" placeholder="10A, 240W" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="custom-pins">Контакты (через запятую)</label>
+          <input type="text" id="custom-pins" class="form-input" value="+IN, -IN, +OUT, -OUT" />
+          <small class="help-text">Для плюса используйте +, для минуса -, для фазы L, для нуля N.</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-create-custom" class="tool-btn accent-primary">Добавить на схему</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Help -->
+  <div id="modal-help" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>❓ Справка и горячие клавиши</h3>
+        <button class="modal-close" data-close="modal-help">✕</button>
+      </div>
+      <div class="modal-body help-body">
+        <h4>Как нарисовать схему:</h4>
+        <ol>
+          <li>Перетащите нужный блок из левой панели на холст (или просто кликните по нему).</li>
+          <li>Чтобы соединить контакты проводом, <strong>нажмите на кружок контакта</strong> одного блока и протяните линию до контакта другого блока.</li>
+          <li>Кликните на любой блок или провод, чтобы справа изменить его название, номинал, цвет или сечение провода.</li>
+          <li>Нажмите <strong>«🛡️ Проверка»</strong>, чтобы найти ошибки: например, если 24В подключено напрямую к 5В/12В без понижающего преобразователя или есть короткое замыкание.</li>
+        </ol>
+        <h4>Горячие клавиши:</h4>
+        <ul class="shortcuts-list">
+          <li><kbd>Delete</kbd> / <kbd>Backspace</kbd> — удалить выбранный блок, провод или заметку</li>
+          <li><kbd>Ctrl</kbd> + <kbd>Z</kbd> — отменить действие</li>
+          <li><kbd>Ctrl</kbd> + <kbd>Y</kbd> — повторить действие</li>
+          <li><kbd>R</kbd> — повернуть выбранный компонент на 90°</li>
+          <li><kbd>D</kbd> — дублировать выбранный компонент</li>
+          <li><kbd>Пробел + Мышь</kbd> или <kbd>Правая кнопка мыши</kbd> — перемещение по холсту</li>
+          <li><kbd>Колесико мыши</kbd> — приблизить / отдалить</li>
+          <li><kbd>Esc</kbd> — отменить рисование провода / снять выделение</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/components-data.js"></script>
+  <script src="js/preset-power-station.js"></script>
+  <script src="js/canvas-engine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
