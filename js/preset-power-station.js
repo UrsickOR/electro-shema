@@ -1,6 +1,65 @@
 // Готовые шаблоны электрических схем
 
 function getPresetData(presetId) {
+  if (presetId === 'ivert-220-v1') {
+    return {
+      "version": 1,
+      "components": [
+        { "id": "r_bat", "type": "battery-24v", "name": "АКБ 24V (8S LiFePO4)", "voltage": "25.6V DC", "spec": "8S 100Ah", "x": 60, "y": 180, "rotation": 0 },
+        { "id": "r_bms", "type": "bms-symmetrical", "name": "BMS (Симметричная)", "voltage": "24V DC", "spec": "8S 100A (Общий порт P-)", "x": 290, "y": 270, "rotation": 0 },
+        { "id": "r_btn", "type": "toggle-switch", "name": "кнопка 2 пин ивертор", "voltage": "24V DC", "spec": "2 контакта (Вкл/Выкл)", "x": 460, "y": 180, "rotation": 0 },
+        { "id": "r_relay", "type": "relay-24v-dry", "name": "Реле 24V (Автореле)", "voltage": "24V DC", "spec": "85/86 катушка, 30/87 на REM", "x": 680, "y": 420, "rotation": 0 },
+        { "id": "r_inv", "type": "inverter-24-220", "name": "Инвертор 24V → 220V", "voltage": "24V → 220V AC", "spec": "1500W (Подкл. напрямую)", "x": 1100, "y": 20, "rotation": 0 },
+        { "id": "r_sock", "type": "socket-220v", "name": "Розетка 220V Евро", "voltage": "220V AC", "spec": "16A Schuko", "x": 1500, "y": -80, "rotation": 0 },
+        { "id": "r_fan1", "type": "cooling-fan", "name": "Вентилятор 1 (24V)", "voltage": "24V DC", "spec": "80x80mm 24V 0.2A", "x": 1010, "y": 250, "rotation": 0 },
+        { "id": "r_fan2", "type": "cooling-fan", "name": "Вентилятор 2 (24V)", "voltage": "24V DC", "spec": "80x80mm 24V 0.2A", "x": 1010, "y": 370, "rotation": 0 },
+        { "id": "comp_1795643785818_943", "type": "inverter-display", "name": "Выносной экран инвертора", "voltage": "Сигнал (4-6 жил)", "spec": "LCD Панель (экран. кабель)", "x": 1240, "y": 220, "rotation": 0 },
+        { "id": "comp_1795643857941_298", "type": "socket-220v", "name": "Розетка 220V (Евро)", "voltage": "220V AC", "spec": "16A Schuko IP44", "x": 1500, "y": 80, "rotation": 0 },
+        { "id": "comp_1795643985290_198", "type": "charge-port-xt60", "name": "Порт зарядки XT60", "voltage": "29.2V DC", "spec": "XT60 Панельный (до 30A)", "x": 60, "y": 40, "rotation": 0 },
+        { "id": "comp_1795644017679_688", "type": "usb-qc-pd", "name": "Модуль USB PD + QC3.0", "voltage": "12-24V DC (вход)", "spec": "PD 65W + QC 18W", "x": 1020, "y": -140, "rotation": 0 },
+        { "id": "comp_1795644072304_579", "type": "rocker-switch", "name": "Кнопка с подсветкой", "voltage": "12-24V DC", "spec": "20A с LED подсветкой", "x": 380, "y": -60, "rotation": 0 },
+        { "id": "comp_1795644183417_75", "type": "power-resistor-rx24", "name": "Силовой резистор (RX24)", "voltage": "до 100V", "spec": "20 Ом 25W (Алюминиевый)", "x": 580, "y": -80, "rotation": 0 },
+        { "id": "comp_1795644230258_489", "type": "car-socket-12v", "name": "Прикуриватель 12V", "voltage": "12V DC", "spec": "15A (180W max)", "x": 1080, "y": -300, "rotation": 0 },
+        { "id": "comp_1795644248641_378", "type": "dcdc-24-12", "name": "Понижайка DC-DC 24→12В", "voltage": "24V → 12V DC", "spec": "20A (240W)", "x": 840, "y": -300, "rotation": 0 }
+      ],
+      "wires": [
+        { "id": "rw4", "fromComp": "r_bat", "fromPin": "neg", "toComp": "r_bms", "toPin": "b_minus", "color": "#1e293b", "gauge": "16 мм² (6 AWG)" },
+        { "id": "rw8", "fromComp": "r_btn", "fromPin": "out", "toComp": "r_fan1", "toPin": "pos", "color": "#ef4444", "gauge": "0.75 мм² (18 AWG)" },
+        { "id": "rw9", "fromComp": "r_btn", "fromPin": "out", "toComp": "r_fan2", "toPin": "pos", "color": "#ef4444", "gauge": "0.75 мм² (18 AWG)" },
+        { "id": "rw10", "fromComp": "r_btn", "fromPin": "out", "toComp": "r_relay", "toPin": "coil_pos", "color": "#ef4444", "gauge": "0.5 мм² (сигнал)" },
+        { "id": "rw14", "fromComp": "r_relay", "fromPin": "no", "toComp": "r_inv", "toPin": "rem_sw", "color": "#a855f7", "gauge": "0.5 мм² (сигнал)" },
+        { "id": "rw15", "fromComp": "r_inv", "fromPin": "ac_l", "toComp": "r_sock", "toPin": "l", "color": "#b45309", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "rw16", "fromComp": "r_inv", "fromPin": "ac_n", "toComp": "r_sock", "toPin": "n", "color": "#3b82f6", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "rw17", "fromComp": "r_inv", "fromPin": "ac_pe", "toComp": "r_sock", "toPin": "pe", "color": "#22c55e", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "w_1795643709939_128", "fromComp": "r_bat", "fromPin": "pos", "toComp": "r_btn", "toPin": "in", "color": "#ef4444", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "w_1795643716332_369", "fromComp": "r_bms", "fromPin": "p_minus", "toComp": "r_relay", "toPin": "coil_neg", "color": "#334155", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "w_1795643723835_988", "fromComp": "r_bms", "fromPin": "p_minus", "toComp": "r_inv", "toPin": "dc_neg", "color": "#334155", "gauge": "16 мм² (6 AWG)" },
+        { "id": "w_1795643743130_17", "fromComp": "r_fan1", "fromPin": "neg", "toComp": "r_bms", "toPin": "p_minus", "color": "#334155", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "w_1795643749079_718", "fromComp": "r_fan2", "fromPin": "neg", "toComp": "r_bms", "toPin": "p_minus", "color": "#334155", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "w_1795643796185_110", "fromComp": "r_inv", "fromPin": "lcd_bus", "toComp": "comp_1795643785818_943", "toPin": "lcd_in", "color": "#f59e0b", "gauge": "0.5 мм² (сигнал)" },
+        { "id": "w_1795643864042_459", "fromComp": "r_inv", "fromPin": "ac_l", "toComp": "comp_1795643857941_298", "toPin": "l", "color": "#b45309", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "w_1795643869760_827", "fromComp": "r_inv", "fromPin": "ac_n", "toComp": "comp_1795643857941_298", "toPin": "n", "color": "#3b82f6", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "w_1795643887002_505", "fromComp": "r_inv", "fromPin": "ac_pe", "toComp": "comp_1795643857941_298", "toPin": "pe", "color": "#22c55e", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "w_1795643992872_622", "fromComp": "comp_1795643985290_198", "fromPin": "pos", "toComp": "r_bat", "toPin": "pos", "color": "#ef4444", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "w_1795644006474_745", "fromComp": "comp_1795643985290_198", "fromPin": "neg", "toComp": "r_bms", "toPin": "p_minus", "color": "#334155", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "w_1795644094244_306", "fromComp": "r_bat", "fromPin": "pos", "toComp": "comp_1795644072304_579", "toPin": "in", "color": "#ef4444", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "w_1795644191654_629", "fromComp": "comp_1795644072304_579", "fromPin": "out", "toComp": "comp_1795644183417_75", "toPin": "in", "color": "#ef4444", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "w_1795644205003_139", "fromComp": "comp_1795644017679_688", "fromPin": "in_pos", "toComp": "comp_1795644183417_75", "toPin": "out", "color": "#ef4444", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "w_1795644217702_106", "fromComp": "r_bms", "fromPin": "p_minus", "toComp": "comp_1795644017679_688", "toPin": "in_neg", "color": "#334155", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "w_1795644260426_775", "fromComp": "comp_1795644017679_688", "fromPin": "in_neg", "toComp": "comp_1795644248641_378", "toPin": "in_neg", "color": "#334155", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "w_1795644280788_213", "fromComp": "comp_1795644248641_378", "fromPin": "in_pos", "toComp": "comp_1795644183417_75", "toPin": "out", "color": "#ef4444", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "w_1795644285490_796", "fromComp": "comp_1795644248641_378", "fromPin": "out_pos", "toComp": "comp_1795644230258_489", "toPin": "pos", "color": "#ef4444", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "w_1795644291414_63", "fromComp": "comp_1795644248641_378", "fromPin": "out_neg", "toComp": "comp_1795644230258_489", "toPin": "neg", "color": "#334155", "gauge": "2.5 мм² (14 AWG)" },
+        { "id": "w_1795644381028_935", "fromComp": "r_bat", "fromPin": "pos", "toComp": "r_inv", "toPin": "dc_pos", "color": "#ef4444", "gauge": "16 мм² (6 AWG)" }
+      ],
+      "notes": [
+        { "id": "note_1795644717363", "x": 560, "y": -140, "text": "спросить, нужен ли резистор на usb" },
+        { "id": "note_1795644753260", "x": 840, "y": -360, "text": "Спросить нужна ли понижайка на прикуриватель" },
+        { "id": "note_1795644787042", "x": 660, "y": 560, "text": "спросить про реле с рам разъемом" }
+      ]
+    };
+  }
+
   if (presetId === 'power-station-24v') {
     return {
       components: [
